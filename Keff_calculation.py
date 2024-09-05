@@ -249,13 +249,18 @@ def main():
 def AGM_MH_parser(path_and_filename):
 
 	_, filename = os.path.split(path_and_filename)
-
-	# Try to read volume from filename
-	mag_vol_cc = None
-	mag_vol_cc_re = r'vol(.+)cc'
-	re_search = re.search(mag_vol_cc_re, filename)
+	length = None
+	length_re = r'(\d+\.\d+)x(\d+\.\d+)x(\d+\.\d+)'
+	re_search = re.search(length_re, filename)
 	if re_search:
-		mag_vol_cc = float(re_search.group(1))
+		length_x = float(re_search.group(1))
+		length_y = float(re_search.group(2))
+		length_z = float(re_search.group(3))
+	else:
+		print("No lengths found in filename.")
+		length_x, length_y, length_z = None, None, None
+	# Try to read volume from filename
+	mag_vol_cc = length_x*length_y*(length_z+0.2)*3*1e-9
 
 	# Hard coded to AGM format!
 	start_line_re = r'\s+\(Oe\)\s+\(emu\)'

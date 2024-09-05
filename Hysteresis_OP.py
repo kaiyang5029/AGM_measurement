@@ -6,23 +6,18 @@ directory = 'AGM_measurement/Computing/'
 files = os.listdir(directory)
 files.sort()
 print(files)
-"""
-length1 = [4.02, 3.26, 3.30, 4.00, 4.26, 4.00]
-length2 = [4.26, 4.26, 3.76, 3.84, 4.10, 4.28]
-height = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3]
 
-length1 = [x * 1e-1 for x in length1]
-length2 = [x * 1e-1 for x in length2]
-height = [x * 1e-7 for x in height]
-"""
-subtitle = '3253_Wedge_Check'
+subtitle = '3136_Ms_Check'
 fig, axes = plt.subplots(nrows=2, ncols=5, figsize=(10, 10))  # Adjust figsize to your needs
 fig.suptitle(subtitle, y=0.95, fontsize = 15)  # Overall title
 axes = axes.flatten()
 len = len(files)
 i=0
 #parameters = [f.split('_')[0] for f in files]
-parameters = ['Control_Co0.8','Control_Co0.9','Control_Co1.0','Control_Co1.1','3280_Co0.9',]
+parameters = ['3136A_G','3136B_G','3136C_G','3136D_G']
+height = [0.8,0.9,1.0,1.1]
+length1 = [4.02, 3.26,3.3,4]
+length2 = [4.26, 4.26,3.76,3.84]
 #print(full_parameters)
 
 while i<len:
@@ -42,14 +37,15 @@ while i<len:
     
     #Volume = length1[i] * length2[i] * Height
     
-    Volume = 1
+    Volume = length1[i]*length2[i]*(height[i]+0.2)*3*1e-9
     # Process the data
     df[3] = df[3] / Volume * 1e3
     df[2] = df[2] / 10
 
     #Find the Ms
-    filtered_df = df[df[2] > 300]
+    filtered_df = df[df[2] > 500]
     Ms = filtered_df[3].mean()
+    print(Ms/1e6)
 
     '''
     # Extract column for x and y
