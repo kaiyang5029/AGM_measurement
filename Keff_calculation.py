@@ -171,20 +171,24 @@ class Analysis:
 		x_basis = np.linspace(x_min*B_frac, x_max*B_frac, self.interpolation_multiple*np.max([len(OP_data[:, 0]), len(IP_data[:, 0])]))
         
 		# normalise IP to OP
-# 		tmp = np.concatenate(([OP_data[:self.level_region,1], OP_data[-self.level_region:,1]]))
-		tmp = np.concatenate(([OP_data[:self.level_region,1], OP_data[-self.level_region:,1],IP_data[:self.level_region,1], IP_data[-self.level_region:,1]]))
+		tmp = np.concatenate(([OP_data[:self.level_region,1], OP_data[-self.level_region:,1]]))
+		#tmp = np.concatenate(([OP_data[:self.level_region,1], OP_data[-self.level_region:,1],
+		#				 IP_data[:self.level_region,1], IP_data[-self.level_region:,1]]))
 
+		#M_sat = M_sat*1000
 		M_sat = np.mean(np.abs(tmp)); #print(tmp)
+		M_sat = 1.177871778*1000
 		M_sat_MAm = M_sat/1000
 
 		OP_x1_interp, OP_y1_interp, OP_area1, OP_x2_interp, OP_y2_interp, OP_area2 = self.proc_MH_loop(OP_data, M_sat, x_basis)
 		IP_x1_interp, IP_y1_interp, IP_area1, IP_x2_interp, IP_y2_interp, IP_area2 = self.proc_MH_loop(IP_data, M_sat, x_basis)
 
+		print("OP area is ", OP_area1, OP_area2)
+		print("IP area is ", IP_area1, IP_area2)
 		# calc area
 		erg_cc_to_MJ_m3: float = 1e-7  # 1 erg/cc to MJ/m^3
 		Keff_erg_cc = (OP_area1 + OP_area2 - IP_area1 - IP_area2)/4 # in erg/cc
 # 		Keff_erg_cc = (OP_area1 + OP_area2)/4 # in erg/cc
-
 		Keff_MJ_m3 = Keff_erg_cc * erg_cc_to_MJ_m3
 		print(f'{label}: Ms = {M_sat_MAm:3g} MA/m, Keff = {Keff_MJ_m3:3g} MJ/m^3.')
 
@@ -198,14 +202,15 @@ class Analysis:
 		ax1.set_xlabel('Field (Oe)')
 		ax1.set_ylabel('Magnetisation (emu/cc)')
 		ax1.set_title(f'Original')
-		ax1.set_xlim(-5000, 5000)
+		ax1.set_xlim(-6000, 6000)
 		# extrapolated and normalised
 		ax2.plot(OP_x1_interp, OP_y1_interp, '-', color='k', label='OP1')
 		ax2.plot(OP_x2_interp, OP_y2_interp, '--', color='k', label='OP2')
 		ax2.plot(IP_x1_interp, IP_y1_interp, '-', color='r', label='IP1')
 		ax2.plot(IP_x2_interp, IP_y2_interp, '--', color='r', label='IP2')
 		ax2.set_xlabel('Field (Oe)')
-		ax2.set_xlim(-5000, 5000)
+		ax2.set_xlim(0, 6000)
+		ax2.grid(True)
 		# ax2.set_ylabel('Magnetisation (emu/cc)')
 		ax2.set_title(f'Corrected\nMs = {M_sat_MAm:3g} MA/m\nKeff = {Keff_MJ_m3:3g} MJ/m^3.')
 
@@ -256,11 +261,17 @@ def AGM_MH_parser(path_and_filename):
 		length_x = float(re_search.group(1))
 		length_y = float(re_search.group(2))
 		length_z = float(re_search.group(3))
+		#Msat = float(re_search.group(4))
 	else:
 		print("No lengths found in filename.")
 		length_x, length_y, length_z = None, None, None
 	# Try to read volume from filename
-	mag_vol_cc = length_x*length_y*(length_z+0.2)*3*1e-9
+	if(length_x==None):
+		vol_re = r'vol(\d+\.\d+e-\d+)cc'
+		re_search = re.search(vol_re, filename)
+		mag_vol_cc = float(re_search.group(1))
+	else:
+		mag_vol_cc = length_x*length_y*(length_z+0.2)*3*1e-9
 
 	# Hard coded to AGM format!
 	start_line_re = r'\s+\(Oe\)\s+\(emu\)'
