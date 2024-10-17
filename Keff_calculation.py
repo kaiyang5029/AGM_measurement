@@ -3,9 +3,7 @@
 Created on Sun Jun 30 03:22:59 2024
 
 @author: hp
-"""
 
-"""
 This script is modified from one written by Viriya.
 Calculates Keff from pairs of OP and IP measurement data.
 
@@ -136,6 +134,8 @@ class Analysis:
 		_, OP_file2 =  os.path.split(OP_file)
 		_, IP_file2 =  os.path.split(IP_file)
 		label = f'{OP_file2}_{IP_file2}'
+		OP_name = OP_file2.split(" ")
+		IP_name = IP_file2.split(" ")
 
 		if self.parser == 'agm':
 			OP_data, mag_vol_cc = AGM_MH_parser(OP_file)
@@ -160,10 +160,16 @@ class Analysis:
 
 # 		OP_data[:,1]=OP_data[:,1]- y_corr_OP/2;
 # 		IP_data[:,1]=OP_data[:,1]- y_corr_IP/2;
-
+		OP_file_path = f'{OP_name[0]}_OP_AD_Ph_10kOe.txt'
+		IP_file_path = f'{IP_name[0]}_IP_AD_Ph_10kOe.txt'
+		H_OP = OP_data[:,0]/1000
+		H_IP = IP_data[:,0]/1000
+		raw_OP = OP_data[:,1].copy()
+		raw_IP = IP_data[:,1].copy()
 		# convert to magnetisation
 		OP_data[:,1] /= mag_vol_cc
 		IP_data[:,1] /= mag_vol_cc
+
 		x_min, x_max = np.min(np.concatenate(([OP_data[:, 0], IP_data[:, 0]]))), np.max(np.concatenate(([OP_data[:, 0], IP_data[:, 0]])))
 		B_frac= 1
         
@@ -171,14 +177,25 @@ class Analysis:
 		x_basis = np.linspace(x_min*B_frac, x_max*B_frac, self.interpolation_multiple*np.max([len(OP_data[:, 0]), len(IP_data[:, 0])]))
         
 		# normalise IP to OP
-		tmp = np.concatenate(([OP_data[:self.level_region,1], OP_data[-self.level_region:,1]]))
-		#tmp = np.concatenate(([OP_data[:self.level_region,1], OP_data[-self.level_region:,1],
-		#				 IP_data[:self.level_region,1], IP_data[-self.level_region:,1]]))
-
+		#tmp = np.concatenate(([IP_data[:self.level_region,1], IP_data[-self.level_region:,1]]))
+		tmp = np.concatenate(([OP_data[:self.level_region,1], OP_data[-self.level_region:,1],
+						 IP_data[:self.level_region,1], IP_data[-self.level_region:,1]]))
+		tmp_IP = np.concatenate(([IP_data[:self.level_region,1], IP_data[-self.level_region:,1]]))
+		
+		M_sat_IP = np.mean(np.abs(tmp_IP))
 		#M_sat = M_sat*1000
-		M_sat = np.mean(np.abs(tmp)); #print(tmp)
-		M_sat = 1.177871778*1000
+		#M_sat = np.mean(np.abs(tmp)); #print(tmp)
+		M_sat = 1.2868*1000
 		M_sat_MAm = M_sat/1000
+		M_sat_MAm_IP = M_sat_IP/1000
+
+		M_norm_OP = OP_data[:,1].copy()
+		M_norm_OP /= M_sat
+		M_norm_IP = IP_data[:,1].copy()
+		M_norm_IP /= M_sat_IP
+
+		M_IP = M_norm_IP.copy()
+		M_IP *= M_sat_MAm
 
 		OP_x1_interp, OP_y1_interp, OP_area1, OP_x2_interp, OP_y2_interp, OP_area2 = self.proc_MH_loop(OP_data, M_sat, x_basis)
 		IP_x1_interp, IP_y1_interp, IP_area1, IP_x2_interp, IP_y2_interp, IP_area2 = self.proc_MH_loop(IP_data, M_sat, x_basis)
@@ -191,6 +208,17 @@ class Analysis:
 # 		Keff_erg_cc = (OP_area1 + OP_area2)/4 # in erg/cc
 		Keff_MJ_m3 = Keff_erg_cc * erg_cc_to_MJ_m3
 		print(f'{label}: Ms = {M_sat_MAm:3g} MA/m, Keff = {Keff_MJ_m3:3g} MJ/m^3.')
+
+		with open(OP_file_path, 'w') as file:
+			file.write(f"Keff(MJ/m3):{Keff_MJ_m3} Ms(MA/m):{M_sat_MAm}\n")
+			file.write("H(kOe) moment(emu) M(MA/m) M_norm()\n")
+			for a, b, c, d in zip(H_OP, raw_OP, OP_data[:,1]/1000, M_norm_OP):
+				file.write(f"{a} {b} {c} {d}\n")  # Columns separated by spaces
+		with open(IP_file_path, 'w') as file:
+			file.write(f"Keff(MJ/m3):{Keff_MJ_m3} Ms(MA/m):{M_sat_MAm_IP}\n")
+			file.write("H(kOe) moment(emu) M(MA/m) M_norm()\n")
+			for a, b, c, d in zip(H_IP, raw_IP, M_IP, M_norm_IP):
+				file.write(f"{a} {b} {c} {d}\n")  # Columns separated by spaces
 
 		# plotting
 		fig = plt.figure(figsize=(10, 5))
@@ -254,6 +282,7 @@ def main():
 def AGM_MH_parser(path_and_filename):
 
 	_, filename = os.path.split(path_and_filename)
+
 	length = None
 	length_re = r'(\d+\.\d+)x(\d+\.\d+)x(\d+\.\d+)'
 	re_search = re.search(length_re, filename)
