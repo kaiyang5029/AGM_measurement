@@ -177,15 +177,15 @@ class Analysis:
 		x_basis = np.linspace(x_min*B_frac, x_max*B_frac, self.interpolation_multiple*np.max([len(OP_data[:, 0]), len(IP_data[:, 0])]))
         
 		# normalise IP to OP
-		#tmp = np.concatenate(([IP_data[:self.level_region,1], IP_data[-self.level_region:,1]]))
-		tmp = np.concatenate(([OP_data[:self.level_region,1], OP_data[-self.level_region:,1],
-						 IP_data[:self.level_region,1], IP_data[-self.level_region:,1]]))
+		tmp = np.concatenate(([OP_data[:self.level_region,1], OP_data[-self.level_region:,1]]))
+		#tmp = np.concatenate(([OP_data[:self.level_region,1], OP_data[-self.level_region:,1],
+		#				 IP_data[:self.level_region,1], IP_data[-self.level_region:,1]]))
 		tmp_IP = np.concatenate(([IP_data[:self.level_region,1], IP_data[-self.level_region:,1]]))
 		
 		M_sat_IP = np.mean(np.abs(tmp_IP))
 		#M_sat = M_sat*1000
-		#M_sat = np.mean(np.abs(tmp)); #print(tmp)
-		M_sat = 1.2868*1000
+		M_sat = np.mean(np.abs(tmp)); #print(tmp)
+		#M_sat = 1.2868*1000
 		M_sat_MAm = M_sat/1000
 		M_sat_MAm_IP = M_sat_IP/1000
 
@@ -230,14 +230,14 @@ class Analysis:
 		ax1.set_xlabel('Field (Oe)')
 		ax1.set_ylabel('Magnetisation (emu/cc)')
 		ax1.set_title(f'Original')
-		ax1.set_xlim(-6000, 6000)
+		ax1.set_xlim(-8000, 8000)
 		# extrapolated and normalised
 		ax2.plot(OP_x1_interp, OP_y1_interp, '-', color='k', label='OP1')
 		ax2.plot(OP_x2_interp, OP_y2_interp, '--', color='k', label='OP2')
 		ax2.plot(IP_x1_interp, IP_y1_interp, '-', color='r', label='IP1')
 		ax2.plot(IP_x2_interp, IP_y2_interp, '--', color='r', label='IP2')
 		ax2.set_xlabel('Field (Oe)')
-		ax2.set_xlim(0, 6000)
+		ax2.set_xlim(-8000, 8000)
 		ax2.grid(True)
 		# ax2.set_ylabel('Magnetisation (emu/cc)')
 		ax2.set_title(f'Corrected\nMs = {M_sat_MAm:3g} MA/m\nKeff = {Keff_MJ_m3:3g} MJ/m^3.')
@@ -252,7 +252,6 @@ def main():
 
 	path, OP_IP_files = UI_load_files()
 
-    
 	if path is None:
 		return
 
