@@ -299,7 +299,7 @@ def AGM_MH_parser(path_and_filename):
 		re_search = re.search(vol_re, filename)
 		mag_vol_cc = float(re_search.group(1))
 	else:
-		mag_vol_cc = length_x*length_y*(length_z+0.2)*3*1e-9
+		mag_vol_cc = length_x*length_y*(length_z)*3*1e-9
 
 	# Hard coded to AGM format!
 	start_line_re = r'\s+\(Oe\)\s+\(emu\)'

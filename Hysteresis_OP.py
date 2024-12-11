@@ -72,7 +72,7 @@ while i<len:
     df[:,3] = df[:,3]/Ms
     df = df[abs(df[:,2])<200]
     Ms_list.append(Ms/1e6)
-    ax = axs[i]
+    ax = axs[0]
     ax.plot(df[:,2], df[:,3], label=name[i].split("_")[0])
     ax.legend()
     ax.grid()
