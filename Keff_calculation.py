@@ -230,14 +230,14 @@ class Analysis:
 		ax1.set_xlabel('Field (Oe)')
 		ax1.set_ylabel('Magnetisation (emu/cc)')
 		ax1.set_title(f'Original')
-		ax1.set_xlim(-8000, 8000)
+		ax1.set_xlim(-3000, 3000)
 		# extrapolated and normalised
 		ax2.plot(OP_x1_interp, OP_y1_interp, '-', color='k', label='OP1')
 		ax2.plot(OP_x2_interp, OP_y2_interp, '--', color='k', label='OP2')
 		ax2.plot(IP_x1_interp, IP_y1_interp, '-', color='r', label='IP1')
 		ax2.plot(IP_x2_interp, IP_y2_interp, '--', color='r', label='IP2')
 		ax2.set_xlabel('Field (Oe)')
-		ax2.set_xlim(-8000, 8000)
+		ax2.set_xlim(-3000, 3000)
 		ax2.grid(True)
 		# ax2.set_ylabel('Magnetisation (emu/cc)')
 		ax2.set_title(f'Corrected\nMs = {M_sat_MAm:3g} MA/m\nKeff = {Keff_MJ_m3:3g} MJ/m^3.')
@@ -299,7 +299,7 @@ def AGM_MH_parser(path_and_filename):
 		re_search = re.search(vol_re, filename)
 		mag_vol_cc = float(re_search.group(1))
 	else:
-		mag_vol_cc = length_x*length_y*(length_z)*3*1e-9
+		mag_vol_cc = length_x*length_y*(length_z)*1e-9
 
 	# Hard coded to AGM format!
 	start_line_re = r'\s+\(Oe\)\s+\(emu\)'

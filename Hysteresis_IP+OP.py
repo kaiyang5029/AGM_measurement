@@ -4,7 +4,7 @@ import os
 
 directory = 'AGM_measurement/Computing/'
 files = os.listdir(directory)
-code_order = [ "FP3282", "FP3283A","3311A","3311B","3311C","3311D","FP3284C","FP3284D"]
+code_order = [ "3411A", "3355D","3411B","3355E","3411C","3355F"]
 files.sort()
 print(files)
 
@@ -43,18 +43,18 @@ for f in files:
         split.append(f.split("_"))
     else:
         split.append(f.split(" "))
-
+print(len)
 # Filter to include only even indices
 #parameters = [full_parameters[i] for i in range(len) if i % 2 == 0]
 
-while i<len:
+while i<len/2:
     # Load the CSV file into a DataFrame
 #i=0
 #if True:
     #parameters = pd.read_csv(files[i], header=None, nrows=1, skiprows=86)
     print(i)
     df1 = pd.read_csv(directory + files[i], header=None, skiprows=91)
-    df2 = pd.read_csv(directory + files[i+1], header=None, skiprows=91)
+    df2 = pd.read_csv(directory + files[i+3], header=None, skiprows=91)
     #df3 = pd.read_csv(directory + files[i+2], header=None, skiprows=91)
     #print(i)
     """
@@ -79,9 +79,9 @@ while i<len:
     #df3[2] = df3[2] / 10
 
     #Find the Ms
-    filtered_df1 = df1[df1[2] > 350]
+    filtered_df1 = df1[df1[2] > 180]
     Ms1 = filtered_df1[3].mean()
-    filtered_df2 = df2[df2[2] > 350]
+    filtered_df2 = df2[df2[2] > 180]
     Ms2 = filtered_df2[3].mean()
     #filtered_df3 = df3[df3[2] > 350]
     #Ms3 = filtered_df3[3].mean()
@@ -95,8 +95,8 @@ while i<len:
     # Plot the data in mz
     #plt.plot(x, y/1e6, label = label_value)
     '''
-    narrow_df1 = df1[abs(df1[2])<300]
-    narrow_df2 = df2[abs(df2[2])<300]
+    narrow_df1 = df1[abs(df1[2])<150]
+    narrow_df2 = df2[abs(df2[2])<150]
     #narrow_df3 = df3[abs(df3[2])<120]
     x1 = narrow_df1[2]
     y1 = narrow_df1[3]/Ms1
@@ -106,7 +106,7 @@ while i<len:
     #y3 = narrow_df3[3]/Ms3
     #label_value = str(parameters[j])
     label_value1 = split[i][0]+" "+split[i][1]
-    label_value2 = split[i+1][0]+" "+split[i+1][1]
+    label_value2 = split[i+3][0]+" "+split[i+3][1]
     #label_value3 = parameters[i+2]
     # Plot the data in scaled Ms
     #plt.plot(x, y, label = label_value)
@@ -119,7 +119,7 @@ while i<len:
     ax.set_ylabel('M_scaled')
     ax.legend()
     ax.grid(True)
-    i+=2
+    i+=1
     j+=1
 
     # Adjust layout to prevent overlap
